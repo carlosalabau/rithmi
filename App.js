@@ -1,112 +1,19 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
-import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
-import { LineChart } from 'react-native-line-chart'
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import * as React from "react";
+import home from './components/home/home';
+import graphic from './components/graphic/graphic';
+import history from './components/history/history';
 
 export default function App() {
-  const screenWidth = Dimensions.get("window").width;
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#fff",
-    },
-    h1: {
-      marginLeft: 20,
-      fontSize: 16,
-      fontWeight: "bold",
-    },
-    hour: {
-      color: "#494A49",
-      marginTop: 2,
-      paddingRight: 5,
-    },
-    time: {
-      display: "flex",
-      justifyContent: "space-between",
-      flexDirection: "row",
-      marginLeft: 20,
-      marginRight: 20,
-      width: screenWidth / 2.2,
-      paddingRight: 5,
-      marginTop: 5,
-      marginBottom: 5,
-    },
-    green: {
-      color: "#4FD84F",
-    },
-    red: {
-      color: "#EE5305",
-    },
-    date: {
-      marginTop: 10,
-      marginBottom: 10,
-    },
-    grafico:{
-      marginTop: 30
-    }
-  });
-  // Aqui guardo los datos que recojo de la API
-  const [data, setData] = useState([]);
-
-  // Obtengo y guardo los datos de la API
-  const getData = async () => {
-    const res = await axios.get(
-      "https://rithmi-frontend-test.s3-eu-west-1.amazonaws.com/samples.json"
-    );
-    const order = res.data.sort((a, b) =>
-      a.date < b.date ? 1 : a.date > b.date ? -1 : 0
-    );
-    setData(order);
-  };
-
-  const chartConfig = {
-    backgroundGradientFrom: '#1E2923',
-    backgroundGradientTo: '#08130D',
-    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`
-  }
-
-  useEffect(() => {
-    getData(); // Llamo a la funcion al cargar la pagina
-  }, []);
-
+  const Stack = createStackNavigator();
   return (
-    <React.Fragment>
-    <View style={styles.container}>
-      {data.map((el) => (
-        <div>
-          <View style={styles.date}>
-            <Text style={styles.h1}>
-              {el.date.slice(0, 10).split("-").reverse().join("-")}
-            </Text>
-
-            <View style={styles.time}>
-              <Text style={styles.hour}>{el.date.slice(11, 16)}</Text>
-              <Text style={styles.rate}>{el.heartRate} ppm</Text>
-              {el.hasAnomaly ? (
-                <FontAwesomeIcon style={styles.green} icon={faHeart} />
-              ) : (
-                <FontAwesomeIcon style={styles.red} icon={faHeart} />
-              )}
-            </View>
-          </View>
-        </div>
-      ))}
-      <StatusBar style="auto" />
-    </View>
-    <View style={styles.grafico}>
-      <LineChart
-        data={{ 
-          datasets: [{
-            data: data.map((el) => (el.heartRate))
-          }]}}
-        width={screenWidth}
-        height={220}
-        chartConfig={chartConfig}
-      />
-    </View>
-    </React.Fragment>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={home} />
+        <Stack.Screen name="History" component={history} />
+        <Stack.Screen name="Graphic" component={graphic} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
